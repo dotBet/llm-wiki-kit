@@ -1,6 +1,6 @@
 # LLM Wiki
 
-This repository is a Markdown-first implementation of Andrej Karpathy's LLM Wiki pattern, using the Open Knowledge Format (OKF) v0.2 metadata model: raw sources stay immutable, the LLM maintains a compact interlinked wiki, and an operating contract tells agents how to ingest, query, and lint the knowledge base.
+This repository is a Markdown-first implementation of Andrej Karpathy's LLM Wiki pattern, using an OKF v0.2-compatible metadata model: raw sources stay immutable, the LLM maintains a compact interlinked wiki, and an operating contract tells agents how to ingest, query, and lint the knowledge base.
 
 The goal is compounding knowledge. Each useful source, answer, correction, and synthesis should improve the wiki instead of disappearing into chat history.
 
