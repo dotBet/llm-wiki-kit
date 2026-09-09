@@ -1,3 +1,10 @@
+---
+type: Operation
+title: Lint Workflow
+description: Check the wiki for provenance, links, structure, freshness, and navigability problems.
+status: stable
+---
+
 # Lint Workflow
 
 ## Purpose
@@ -7,6 +14,8 @@ Keep the wiki trustworthy, compact, and navigable.
 ## Checklist
 
 - Every important claim follows the [balanced claim tiers](../../AGENTS.md) (sourced, synthesized, or marked uncertain).
+- Every maintained non-reserved wiki page has parseable frontmatter with a non-empty `type`; lifecycle values use OKF-compatible `draft`, `stable`, or `deprecated`.
+- `sources` entries use OKF-compatible mappings with a `resource`, and stable `id` values when body footnotes need claim-level attribution.
 - Internal links resolve.
 - Pages have one clear purpose.
 - Related pages link to each other.

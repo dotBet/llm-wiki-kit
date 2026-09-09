@@ -73,6 +73,9 @@ Use [entity-page.md](wiki/templates/entity-page.md) for entity pages. Use [wiki-
 - Use short, descriptive filenames in kebab case.
 - Use one H1 per page.
 - Keep pages concise and navigable.
+- Treat `wiki/` as an OKF v0.2-compatible bundle: `wiki/index.md` may declare `okf_version: "0.2"`, and every non-reserved maintained page should have parseable YAML frontmatter with a non-empty `type`.
+- Prefer OKF metadata fields `title`, `description`, `sources`, `status`, `generated`, `verified`, and `stale_after` when they add useful machine-readable context. Use `stable`, `draft`, or `deprecated` for lifecycle status.
+- Represent `sources` as entries with at least a `resource` and, when useful, a human-readable `title`; use stable `id` values when body footnotes attribute individual claims.
 - Prefer stable sections: `Summary`, `Key Ideas`, `Workflow`, `Evidence`, `Open Questions`, `Related`.
 - Optional YAML frontmatter: `type`, `status`, `updated`, `sources` (Obsidian/Dataview-ready).
 - Use relative Markdown links.

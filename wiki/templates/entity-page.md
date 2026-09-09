@@ -1,8 +1,12 @@
 ---
 type: entity
+title: Entity Name
+description: One-line summary of the entity.
 status: draft
 updated: YYYY-MM-DD
-sources: []
+sources:
+	- resource: ../../sources/notes/source-name.md
+		title: Source note title
 ---
 
 # Entity Name

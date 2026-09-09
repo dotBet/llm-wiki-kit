@@ -1,3 +1,12 @@
+---
+type: concept
+title: LLM Wiki Pattern
+description: Architecture for compiling raw sources into a persistent, interlinked Markdown wiki.
+status: stable
+updated: 2026-09-09
+sources: [{ resource: ../../sources/notes/karpathy-llm-wiki-source-note.md, title: Karpathy LLM Wiki source note }, { resource: ../../sources/notes/google-knowledge-catalog-okf-spec.md, title: Open Knowledge Format v0.2 source note }]
+---
+
 # LLM Wiki Pattern
 
 ## Summary
@@ -14,6 +23,7 @@ Source: [Karpathy LLM Wiki source note](../../sources/notes/karpathy-llm-wiki-so
 - Querying starts from the wiki before falling back to raw sources.
 - Maintenance is part of the loop: stale, duplicate, and unsourced pages are cleaned over time.
 - `index.md` catalogs pages by category; `log.md` records chronological operations.
+- Open Knowledge Format (OKF) shows how Markdown bundles can make provenance, trust, lifecycle, and reproducible computation explicit without requiring a runtime.
 
 ## Architecture
 
@@ -48,9 +58,12 @@ flowchart LR
 
 Synthesis: [Balanced Citation Policy](../decisions/balanced-citation-policy.md) mitigates sourcing risks without blocking cross-page synthesis.
 
+Synthesis: [Open Knowledge Format](./open-knowledge-format.md) provides a compatible metadata vocabulary for making source lineage, verification, freshness, and computation contracts more machine-readable.
+
 ## Related
 
 - [Karpathy LLM Wiki Gist](../entities/karpathy-llm-wiki-gist.md)
+- [Open Knowledge Format](./open-knowledge-format.md)
 - [Balanced Citation Policy](../decisions/balanced-citation-policy.md)
 - [Ingest Workflow](../operations/ingest.md)
 - [Query Workflow](../operations/query.md)

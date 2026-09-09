@@ -1,6 +1,6 @@
 # LLM Wiki
 
-This repository is a Markdown-first implementation of Andrej Karpathy's LLM Wiki pattern: raw sources stay immutable, the LLM maintains a compact interlinked wiki, and an operating contract tells agents how to ingest, query, and lint the knowledge base.
+This repository is a Markdown-first implementation of Andrej Karpathy's LLM Wiki pattern, using the Open Knowledge Format (OKF) v0.2 metadata model: raw sources stay immutable, the LLM maintains a compact interlinked wiki, and an operating contract tells agents how to ingest, query, and lint the knowledge base.
 
 The goal is compounding knowledge. Each useful source, answer, correction, and synthesis should improve the wiki instead of disappearing into chat history.
 
@@ -21,17 +21,24 @@ The goal is compounding knowledge. Each useful source, answer, correction, and s
 |   |-- decisions/             # Dated choices with rationale
 |   |-- operations/            # Workflows the agent follows
 |   `-- templates/             # Page and source note templates
+|-- .github/skills/            # On-demand ingest, query, and lint skills
 `-- README.md
 ```
+
+## OKF Compatibility
+
+The `wiki/` directory is an OKF-compatible knowledge bundle. The root [wiki index](./wiki/index.md) declares `okf_version: "0.2"`; maintained pages use YAML frontmatter with a non-empty `type`, descriptive metadata, structured `sources`, and OKF-compatible lifecycle values (`draft`, `stable`, or `deprecated`).
+
+This repository deliberately adds stricter local conventions: `wiki/index.md` and `wiki/log.md` are required, internal dead links are lint findings, and claim provenance follows the [balanced citation policy](./wiki/decisions/balanced-citation-policy.md).
 
 ## Core Loop
 
 1. Add raw material to `sources/raw/` and a source note to `sources/notes/`.
-2. Ask the LLM to ingest it using [AGENTS.md](./AGENTS.md).
+2. Ask the LLM to ingest it using [AGENTS.md](./AGENTS.md) or the [LLM Wiki Ingest skill](./.github/skills/llm-wiki-ingest/SKILL.md).
 3. The LLM updates pages under `wiki/`, preserving citations back to sources.
-4. Ask questions against [wiki/index.md](./wiki/index.md) first, then deeper pages, then raw sources only when needed.
+4. Ask questions using the [LLM Wiki Query skill](./.github/skills/llm-wiki-query/SKILL.md), starting from [wiki/index.md](./wiki/index.md), then deeper pages, then raw sources only when needed.
 5. File reusable answers back into the wiki.
-6. Run the lint checklist before trusting the wiki for important work.
+6. Run the [LLM Wiki Lint skill](./.github/skills/llm-wiki-lint/SKILL.md) before trusting the wiki for important work.
 
 ## Obsidian Workflow
 
@@ -50,6 +57,7 @@ Avoid committing `.obsidian/workspace.json` churn unless you want personal layou
 - Sources are the ground truth. Do not rewrite or silently mutate them.
 - Wiki pages are compiled knowledge, not transcripts.
 - Claims follow balanced provenance: sourced, synthesized, or marked uncertain.
+- OKF metadata makes provenance, trust, lifecycle, freshness, and reproducible computation explicit when useful.
 - Links should be explicit and navigable.
 - Updates should be incremental: improve existing pages before creating new ones.
 - Conflicts are first-class: record disagreements rather than smoothing them away.
@@ -59,6 +67,7 @@ Avoid committing `.obsidian/workspace.json` churn unless you want personal layou
 - [Wiki Index](./wiki/index.md)
 - [Wiki Log](./wiki/log.md)
 - [LLM Wiki Pattern](./wiki/concepts/llm-wiki-pattern.md)
+- [Open Knowledge Format](./wiki/concepts/open-knowledge-format.md)
 - [Ingest Workflow](./wiki/operations/ingest.md)
 - [Query Workflow](./wiki/operations/query.md)
 - [Lint Workflow](./wiki/operations/lint.md)

@@ -1,8 +1,12 @@
 ---
 type: concept
+title: Page Title
+description: One-line summary of the durable concept.
 status: draft
 updated: YYYY-MM-DD
-sources: []
+sources:
+	- resource: ../../sources/notes/source-name.md
+		title: Source note title
 ---
 
 # Page Title

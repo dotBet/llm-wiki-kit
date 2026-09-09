@@ -1,3 +1,10 @@
+---
+type: Operation
+title: Ingest Workflow
+description: Turn raw material into durable wiki knowledge.
+status: stable
+---
+
 # Ingest Workflow
 
 ## Purpose

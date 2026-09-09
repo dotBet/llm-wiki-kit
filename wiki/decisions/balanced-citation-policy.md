@@ -1,8 +1,14 @@
 ---
 type: decision
-status: current
-updated: 2026-07-17
-sources: []
+title: Balanced Citation Policy
+description: Provenance policy distinguishing sourced, synthesized, and uncertain wiki claims.
+status: stable
+updated: 2026-09-09
+sources:
+  - resource: ../../sources/notes/karpathy-llm-wiki-source-note.md
+    title: Karpathy LLM Wiki source note
+  - resource: ../../sources/notes/google-knowledge-catalog-okf-spec.md
+    title: Open Knowledge Format v0.2 source note
 ---
 
 # Balanced Citation Policy
@@ -33,9 +39,11 @@ Synthesis: this decision follows from the risks named in [LLM Wiki Pattern](../c
 
 - Source: [Karpathy LLM Wiki source note](../../sources/notes/karpathy-llm-wiki-source-note.md) — gist emphasizes sourced, maintained knowledge over chat ephemera
 - Contract: [AGENTS.md](../../AGENTS.md) — claim tiers encoded in Page Conventions
+- OKF v0.2: [Open Knowledge Format source note](../../sources/notes/google-knowledge-catalog-okf-spec.md) — separates provenance, generation, verification, lifecycle, and attested computation metadata
 
 ## Related
 
 - [LLM Wiki Pattern](../concepts/llm-wiki-pattern.md)
 - [Lint Workflow](../operations/lint.md)
 - [Ingest Workflow](../operations/ingest.md)
+- [Open Knowledge Format](../concepts/open-knowledge-format.md)

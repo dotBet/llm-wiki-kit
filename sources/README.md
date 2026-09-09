@@ -1,6 +1,6 @@
 # Sources
 
-This folder holds the ground truth for the wiki.
+This folder holds the ground truth for the wiki. Raw material is captured here; the maintained, synthesized knowledge layer lives under [`wiki/`](../wiki/index.md).
 
 ## Layout
 
@@ -20,6 +20,8 @@ sources/
 - Meeting notes or pasted transcripts.
 - Images in `assets/` when local copies are needed.
 
+For external URLs, capture a small immutable wrapper in `raw/` containing the canonical URL, pinned revision or date when available, and capture date. Do not treat a URL wrapper as a substitute for a source note.
+
 ## Rules
 
 - Preserve raw material as much as possible.
@@ -27,6 +29,7 @@ sources/
 - Prefer adding new source notes over rewriting history.
 - If a source changes over time, create a dated note.
 - Link wiki claims back to source notes or raw files.
+- In OKF-compatible wiki pages, represent source provenance with `sources` entries containing at least a `resource` and, when useful, a `title`; add stable `id` values when body footnotes attribute individual claims.
 
 ## Source Note Lifecycle
 
@@ -34,4 +37,4 @@ sources/
 - `extracted` — claims pulled into wiki pages
 - `reconciled` — wiki pages verified against the source
 
-Suggested format: [source-note.md](../wiki/templates/source-note.md).
+Suggested format: [source-note.md](../wiki/templates/source-note.md). The source note should record extracted claims, terms, decisions, conflicts, open questions, and related wiki pages.

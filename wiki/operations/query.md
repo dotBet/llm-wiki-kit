@@ -1,3 +1,10 @@
+---
+type: Operation
+title: Query Workflow
+description: Answer questions from the compiled wiki and file reusable answers back into it.
+status: stable
+---
+
 # Query Workflow
 
 ## Purpose

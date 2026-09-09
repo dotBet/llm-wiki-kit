@@ -1,9 +1,12 @@
 ---
 type: entity
-status: current
-updated: 2026-07-17
+title: Karpathy LLM Wiki Gist
+description: Andrej Karpathy's primary idea file for a persistent, interlinked LLM-maintained wiki.
+status: stable
+updated: 2026-09-09
 sources:
-  - ../../sources/notes/karpathy-llm-wiki-source-note.md
+  - resource: ../../sources/notes/karpathy-llm-wiki-source-note.md
+    title: Karpathy LLM Wiki source note
 ---
 
 # Karpathy LLM Wiki Gist
