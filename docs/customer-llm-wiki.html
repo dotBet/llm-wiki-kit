@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LLM Wiki — compiled memory for long-lived work</title>
+  <style>
+    :root {
+      --bg: #f4f2ee;
+      --slide: #fff;
+      --text: #1c1b19;
+      --muted: #5c5852;
+      --line: #d8d4cd;
+      --accent: #1f4e79;
+      --accent-soft: #e8eef4;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      background: #2b2a27;
+      color: var(--text);
+      font-family: Georgia, "Times New Roman", serif;
+    }
+
+    .deck {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+
+    .stage {
+      width: min(100%, 1280px);
+      aspect-ratio: 16 / 9;
+      background: var(--slide);
+      color: var(--text);
+      position: relative;
+      overflow: hidden;
+      border: 1px solid #111;
+    }
+
+    .slide {
+      display: none;
+      position: absolute;
+      inset: 0;
+      padding: 3.2rem 3.6rem 4.2rem;
+      background: var(--slide);
+    }
+
+    .slide.active { display: flex; flex-direction: column; }
+
+    .kicker {
+      font-family: "Segoe UI", system-ui, sans-serif;
+      font-size: 0.78rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 600;
+      margin-bottom: 0.85rem;
+    }
+
+    h1 {
+      font-size: 2.55rem;
+      line-height: 1.15;
+      font-weight: 500;
+      max-width: 18ch;
+    }
+
+    h2 {
+      font-size: 2.05rem;
+      line-height: 1.2;
+      font-weight: 500;
+      margin-bottom: 1.4rem;
+    }
+
+    .lede {
+      margin-top: 1.15rem;
+      font-size: 1.25rem;
+      color: var(--muted);
+      max-width: 36ch;
+      line-height: 1.45;
+    }
+
+    p, li {
+      font-family: "Segoe UI", system-ui, sans-serif;
+      font-size: 1.12rem;
+      line-height: 1.45;
+    }
+
+    .muted { color: var(--muted); }
+
+    ul { list-style: none; }
+    ul.bullets li {
+      padding: 0.45rem 0 0.45rem 1.1rem;
+      position: relative;
+      max-width: 52ch;
+    }
+    ul.bullets li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0.95rem;
+      width: 0.45rem;
+      height: 0.45rem;
+      background: var(--accent);
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem 2rem;
+      flex: 1;
+    }
+
+    .card {
+      background: var(--accent-soft);
+      padding: 1.1rem 1.2rem;
+      border-left: 3px solid var(--accent);
+    }
+
+    .card h3, .box h3 {
+      font-family: "Segoe UI", system-ui, sans-serif;
+      font-size: 0.95rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.45rem;
+    }
+
+    .card p, .box p { font-size: 1.02rem; }
+
+    .loop {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr auto 1fr auto 1fr;
+      gap: 0.55rem;
+      align-items: stretch;
+      margin-top: 0.4rem;
+      flex: 1;
+    }
+
+    .box {
+      border: 1px solid var(--line);
+      padding: 1.1rem 1rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .arrow {
+      font-family: "Segoe UI", system-ui, sans-serif;
+      color: var(--accent);
+      font-size: 1.6rem;
+      align-self: center;
+    }
+
+    .title-slide {
+      justify-content: flex-end;
+      padding-bottom: 4.6rem;
+    }
+
+    .title-slide .rule {
+      width: 4.5rem;
+      height: 3px;
+      background: var(--accent);
+      margin: 1.4rem 0 1.1rem;
+    }
+
+    .footer {
+      position: absolute;
+      left: 3.6rem;
+      right: 3.6rem;
+      bottom: 1.35rem;
+      display: flex;
+      justify-content: space-between;
+      font-family: "Segoe UI", system-ui, sans-serif;
+      font-size: 0.72rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .chrome {
+      width: min(100%, 1280px);
+      margin-top: 0.7rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #c8c4bc;
+      font-family: "Segoe UI", system-ui, sans-serif;
+      font-size: 0.8rem;
+    }
+
+    .chrome button {
+      background: transparent;
+      border: 1px solid #6a675f;
+      color: #ece8e0;
+      padding: 0.35rem 0.7rem;
+      font: inherit;
+      cursor: pointer;
+    }
+
+    .chrome button:hover { border-color: #ece8e0; }
+
+    .notes {
+      width: min(100%, 1280px);
+      margin-top: 0.65rem;
+      color: #d6d2ca;
+      font-family: "Segoe UI", system-ui, sans-serif;
+      font-size: 0.85rem;
+    }
+
+    .notes summary { cursor: pointer; color: #b7b3ab; }
+    .notes p { margin-top: 0.4rem; max-width: 80ch; color: #cfcbc3; font-size: 0.9rem; }
+
+    code {
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.92em;
+    }
+
+    @media print {
+      html, body { background: #fff; height: auto; }
+      .deck { display: block; padding: 0; }
+      .chrome, .notes { display: none; }
+      .stage {
+        width: 100%;
+        aspect-ratio: auto;
+        border: none;
+        overflow: visible;
+      }
+      .slide {
+        display: flex !important;
+        position: relative;
+        page-break-after: always;
+        min-height: 100vh;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="deck">
+    <div class="stage" id="stage" tabindex="0">
+
+      <section class="slide title-slide active" data-notes="Open by naming the problem: knowledge from delivery work evaporates. The rest of the deck is how a vanilla repo stops that leak without a new platform.">
+        <p class="kicker">Customer briefing</p>
+        <h1>LLM Wiki</h1>
+        <div class="rule"></div>
+        <p class="lede">Compiled memory for long-lived work. Markdown, git, and the coding assistant you already use.</p>
+        <div class="footer"><span>Vanilla knowledge, not a new product stack</span><span></span></div>
+      </section>
+
+      <section class="slide" data-notes="Stay on the leak. Do not pitch tools yet. Tickets, chats, and one-off RAG answers do not leave a map the next person can trust.">
+        <p class="kicker">The leak</p>
+        <h2>Delivery knowledge does not compound.</h2>
+        <ul class="bullets">
+          <li>Chat sessions and tickets answer a question once, then disappear.</li>
+          <li>The next engineer—or the next agent—starts over on the same platform handbook.</li>
+          <li>Shared drives go stale; search finds documents, not decisions.</li>
+          <li>Retrieval over a pile re-derives the answer every time, with no memory of what you already settled.</li>
+        </ul>
+        <div class="footer"><span>LLM Wiki</span><span></span></div>
+      </section>
+
+      <section class="slide" data-notes="Compile vs retrieve is the only conceptual slide that matters. Wiki is working memory. Raw sources stay the ground truth.">
+        <p class="kicker">The idea</p>
+        <h2>Compile once. Keep it current. Ask the wiki first.</h2>
+        <div class="grid-2">
+          <div class="card">
+            <h3>Working memory</h3>
+            <p>An LLM incrementally compiles sources into a small, linked Markdown wiki—the map your team and agents query next time.</p>
+          </div>
+          <div class="card">
+            <h3>Source of truth</h3>
+            <p>Originals stay immutable. The wiki is compiled knowledge, not a chat transcript and not a second copy of every PDF.</p>
+          </div>
+          <div class="card">
+            <h3>Query path</h3>
+            <p>Start at the catalog, follow links, then open raw files only to verify, fill a gap, or resolve a conflict.</p>
+          </div>
+          <div class="card">
+            <h3>Origin</h3>
+            <p>The pattern follows Andrej Karpathy’s LLM Wiki idea: a persistent Markdown knowledge base maintained by an agent, reviewed by people.</p>
+          </div>
+        </div>
+        <div class="footer"><span>LLM Wiki</span><span></span></div>
+      </section>
+
+      <section class="slide" data-notes="Vanilla is the product stance. Contrast with buying Confluence-as-AI or standing up a custom RAG stack. Files in git are the system of record.">
+        <p class="kicker">Vanilla on purpose</p>
+        <h2>No new platform. A repo you already know how to run.</h2>
+        <ul class="bullets">
+          <li>Markdown files in git—the system of record, with a normal review trail.</li>
+          <li>Works with the coding assistant you already use (Cursor, Claude, Copilot, Codex, and peers).</li>
+          <li>People browse in GitHub or Obsidian. The agent writes Markdown; humans approve the diff.</li>
+          <li>Not a wiki SaaS to license. Not a custom vector pipeline required for the core loop.</li>
+        </ul>
+        <div class="footer"><span>LLM Wiki</span><span></span></div>
+      </section>
+
+      <section class="slide" data-notes="Translate architecture into client outcomes. Index and log can be named in plain language here; file names wait for the appendix.">
+        <p class="kicker">What you get</p>
+        <h2>A compiled knowledge base the next engagement can open.</h2>
+        <div class="grid-2">
+          <div class="card">
+            <h3>Answers with provenance</h3>
+            <p>Reusable answers cite sources. Inferences are labeled. Gaps stay visible instead of sounding finished.</p>
+          </div>
+          <div class="card">
+            <h3>Decisions with rationale</h3>
+            <p>Dated choices live as pages: why we named tables this way, what is still open, what superseded what.</p>
+          </div>
+          <div class="card">
+            <h3>A map</h3>
+            <p>A catalog of concepts, entities, and operations so an agent does not load the whole vault to answer one question.</p>
+          </div>
+          <div class="card">
+            <h3>A timeline</h3>
+            <p>An append-only log of ingests, queries, and maintenance—so you can see how the wiki grew.</p>
+          </div>
+        </div>
+        <div class="footer"><span>LLM Wiki</span><span></span></div>
+      </section>
+
+      <section class="slide" data-notes="Walk the four boxes left to right. Emphasize lint: without it the wiki drifts. Keep this visual, not a process dump.">
+        <p class="kicker">The loop</p>
+        <h2>Ingest, compile, ask, keep honest.</h2>
+        <div class="loop">
+          <div class="box">
+            <h3>Ingest</h3>
+            <p>Capture raw material. Extract claims, terms, and open questions.</p>
+          </div>
+          <span class="arrow" aria-hidden="true">→</span>
+          <div class="box">
+            <h3>Wiki</h3>
+            <p>Update existing pages before creating new ones. Link related ideas.</p>
+          </div>
+          <span class="arrow" aria-hidden="true">→</span>
+          <div class="box">
+            <h3>Query</h3>
+            <p>Answer from the wiki first. File reusable answers back.</p>
+          </div>
+          <span class="arrow" aria-hidden="true">→</span>
+          <div class="box">
+            <h3>Lint</h3>
+            <p>Fix drift, dead links, duplicates, and unsourced claims.</p>
+          </div>
+        </div>
+        <div class="footer"><span>LLM Wiki</span><span></span></div>
+      </section>
+
+      <section class="slide" data-notes="Trust is why this is safer than an unchecked chatbot. Git diff is the audit trail executives understand.">
+        <p class="kicker">Trust</p>
+        <h2>Claims are labeled. People still own the merge.</h2>
+        <ul class="bullets">
+          <li><strong>Sourced</strong> — non-obvious facts point back to a captured document or note.</li>
+          <li><strong>Synthesized</strong> — cross-page inference is marked as such, with contributing pages.</li>
+          <li><strong>Uncertain</strong> — missing evidence stays an open question, not a confident sentence.</li>
+          <li>Human review on the git diff is the control. The wiki is not allowed to silently rewrite originals.</li>
+        </ul>
+        <div class="footer"><span>LLM Wiki</span><span></span></div>
+      </section>
+
+      <section class="slide" data-notes="ArganoRun is illustration only unless this meeting is a Fabric engagement. Pattern is domain-agnostic: swap the handbook, keep the loop.">
+        <p class="kicker">Proof in this repo</p>
+        <h2>Same pattern, one domain: a Fabric lakehouse handbook.</h2>
+        <ul class="bullets">
+          <li>This repository uses the wiki on ArganoRun—an enterprise lakehouse on Microsoft Fabric—not as the product we are selling.</li>
+          <li>Compiled pages cover medallion layers, Kimball star models in Gold, and Spark / notebook conventions.</li>
+          <li>The point: a bounded platform handbook becomes queryable memory instead of a slide deck that ages.</li>
+          <li>Your domain can be a different handbook. The loop does not change.</li>
+        </ul>
+        <div class="footer"><span>LLM Wiki</span><span></span></div>
+      </section>
+
+      <section class="slide" data-notes="Appendix starts here. Name folders. Schema stays outside the portable wiki bundle.">
+        <p class="kicker">Appendix · architecture</p>
+        <h2>Three layers, all files.</h2>
+        <div class="grid-2">
+          <div class="card">
+            <h3>sources/</h3>
+            <p>Immutable originals and source notes. Ground truth. Do not silently edit after capture.</p>
+          </div>
+          <div class="card">
+            <h3>wiki/</h3>
+            <p>Compiled, linked Markdown: concepts, entities, decisions, operations, plus a catalog and a log.</p>
+          </div>
+          <div class="card">
+            <h3>Operating contract</h3>
+            <p>How agents ingest, query, and lint. Lives beside the wiki, not inside the portable knowledge bundle.</p>
+          </div>
+          <div class="card">
+            <h3>Progressive load</h3>
+            <p>Start at the index. Open only the pages needed. Avoid stuffing the whole vault into one prompt.</p>
+          </div>
+        </div>
+        <div class="footer"><span>LLM Wiki · technical</span><span></span></div>
+      </section>
+
+      <section class="slide" data-notes="Vendor-neutral is the close for architects worried about lock-in. OKF is one sentence, not the pitch.">
+        <p class="kicker">Appendix · any agent</p>
+        <h2>One contract. Thin adapters. Portable wiki.</h2>
+        <ul class="bullets">
+          <li>Coding agents load a single operating contract; vendor files are pointers, not a second rulebook.</li>
+          <li>Chat UIs: paste the contract and the wiki index; if the model cannot write files, it emits diffs you save.</li>
+          <li>The compiled <code>wiki/</code> tree is a portable Markdown bundle (OKF-shaped)—interchange without locking to one vendor.</li>
+          <li>You keep git, review, and the assistant your engineers already opened this morning.</li>
+        </ul>
+        <div class="footer"><span>LLM Wiki · technical</span><span></span></div>
+      </section>
+
+      <section class="slide" data-notes="Do not skip caveats. Empty wiki on day zero has no magic. Lint and review are mandatory.">
+        <p class="kicker">Appendix · limits</p>
+        <h2>What we do not claim.</h2>
+        <ul class="bullets">
+          <li>Not a overnight replacement for your lakehouse, intranet, or Confluence.</li>
+          <li>Not automatic truth: unsourced claims can persist if lint and review are skipped.</li>
+          <li>Value shows after a few real ingests—not on an empty wiki on day zero.</li>
+          <li>Poor page boundaries still create duplicates. Maintenance is part of the work, not a side quest.</li>
+        </ul>
+        <div class="footer"><span>LLM Wiki · technical</span><span></span></div>
+      </section>
+
+      <section class="slide" data-notes="Close with a bounded start. Handoff is the repo. Offer to run one Q&amp;A live if time allows.">
+        <p class="kicker">How we would start</p>
+        <h2>One bounded domain. A handful of sources. A live question.</h2>
+        <ul class="bullets">
+          <li>Pick a handbook that already hurts—one platform, one program, not the whole enterprise.</li>
+          <li>Ingest three to five source documents into the repo and compile them into the wiki.</li>
+          <li>Run a real Q&amp;A session against the catalog. File anything reusable back into pages.</li>
+          <li>Leave the git repository as the handoff: sources, compiled wiki, and the operating contract.</li>
+        </ul>
+        <div class="footer"><span>LLM Wiki</span><span></span></div>
+      </section>
+
+    </div>
+
+    <div class="chrome">
+      <span>Arrow keys, Space, or click the slide · Esc for first slide</span>
+      <span>
+        <button type="button" id="prev" aria-label="Previous slide">Prev</button>
+        <span id="counter"></span>
+        <button type="button" id="next" aria-label="Next slide">Next</button>
+      </span>
+    </div>
+
+    <details class="notes" id="notes">
+      <summary>Speaker notes for this slide</summary>
+      <p id="notes-body"></p>
+    </details>
+  </div>
+
+  <script>
+    (function () {
+      var slides = Array.prototype.slice.call(document.querySelectorAll(".slide"));
+      var i = 0;
+      var counter = document.getElementById("counter");
+      var notesBody = document.getElementById("notes-body");
+      var stage = document.getElementById("stage");
+
+      function show(n) {
+        i = (n + slides.length) % slides.length;
+        slides.forEach(function (s, idx) {
+          s.classList.toggle("active", idx === i);
+        });
+        counter.textContent = (i + 1) + " / " + slides.length;
+        slides.forEach(function (s, idx) {
+          var foot = s.querySelector(".footer span:last-child");
+          if (foot) foot.textContent = (idx + 1) + " / " + slides.length;
+        });
+        notesBody.textContent = slides[i].getAttribute("data-notes") || "";
+      }
+
+      function next() { show(i + 1); }
+      function prev() { show(i - 1); }
+
+      document.getElementById("next").addEventListener("click", function (e) {
+        e.stopPropagation();
+        next();
+      });
+      document.getElementById("prev").addEventListener("click", function (e) {
+        e.stopPropagation();
+        prev();
+      });
+
+      stage.addEventListener("click", function (e) {
+        if (e.target.closest("a, button")) return;
+        next();
+      });
+
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "ArrowRight" || e.key === " " || e.key === "PageDown") {
+          e.preventDefault();
+          next();
+        } else if (e.key === "ArrowLeft" || e.key === "PageUp") {
+          e.preventDefault();
+          prev();
+        } else if (e.key === "Home" || e.key === "Escape") {
+          e.preventDefault();
+          show(0);
+        } else if (e.key === "End") {
+          e.preventDefault();
+          show(slides.length - 1);
+        }
+      });
+
+      show(0);
+      stage.focus();
+    })();
+  </script>
+</body>
+</html>
